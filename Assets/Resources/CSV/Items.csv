@@ -1,0 +1,8 @@
+ID,Name,Desc,Cost,Type
+0,Light Hat,A light hat. Does not protect much but looks ok.,10,0
+1,Light Shirt,A light shirt.,10,1
+2,Light Pants,Some light pants. ,10,2
+3,Light Gloves,Some light gloves.,10,3
+4,Light shoes,Some light shoes.,10,4
+5,Wooden sword,Does absolutely no damage,10,5
+6,Wooden shield,Will protect you from absolutely nothing.,10,6
