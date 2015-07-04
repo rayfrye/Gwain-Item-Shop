@@ -33,6 +33,7 @@ public class GameData : MonoBehaviour
 	{
 		loadItemTypes ();
 		loadItems ();
+		setupSimpleShopInventoryScene ();
 	}
 
 	void loadItemTypes()
@@ -66,5 +67,10 @@ public class GameData : MonoBehaviour
 
 			allItems.Add(newItem.id,newItem);
 		}
+	}
+
+	void setupSimpleShopInventoryScene()
+	{
+		gameObject.AddComponent<SimpleSetupShopScene> ();
 	}
 }
