@@ -6,13 +6,23 @@ using System.Linq;
 public class GameData : MonoBehaviour 
 {
 	#region GameData
-	public Dictionary<int,Item> allItems = new Dictionary<int,Item>();
-	public Dictionary<int,ItemType> itemTypes = new Dictionary<int, ItemType>();
+
+		#region itemdata
+			public Dictionary<int,Item> allItems = new Dictionary<int,Item>();
+			public Dictionary<int,ItemType> itemTypes = new Dictionary<int, ItemType>();
+		#endregion itemdata
+
+		#region playerdata
+		public Player player;
+		#endregion playerdata
+
 	#endregion GameData
 
 	#region functionscripts
-	public ReadCSV readCSV;
+		public ReadCSV readCSV;
 	#endregion functionscripts
+
+
 
 	// Use this for initialization
 	void Start () 
@@ -33,6 +43,7 @@ public class GameData : MonoBehaviour
 	{
 		loadItemTypes ();
 		loadItems ();
+		loadPlayer ();
 		setupSimpleShopInventoryScene ();
 	}
 
@@ -67,6 +78,16 @@ public class GameData : MonoBehaviour
 
 			allItems.Add(newItem.id,newItem);
 		}
+	}
+
+	void loadPlayer()
+	{
+		string[,] playerDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/Player.csv");
+		player = new Player ();
+
+		player.gold = int.Parse (playerDataFromFile [0, 1]);
+		player.name = playerDataFromFile [0, 0];
+
 	}
 
 	void setupSimpleShopInventoryScene()

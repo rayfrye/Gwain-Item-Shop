@@ -9,6 +9,6 @@ public class MainMenu : MonoBehaviour
 {
 	public void StartGame()
 	{
-		Application.LoadLevel ("Shop");
+		Application.LoadLevel ("Simple Setup Shop");
 	}
 }

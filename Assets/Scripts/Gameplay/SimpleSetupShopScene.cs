@@ -6,37 +6,67 @@ using System.Linq;
 
 public class SimpleSetupShopScene : MonoBehaviour 
 {
-	public GameObject Items;
+	#region gameobjects
+		public GameObject Items;
+		public GameData gameData;
+		public Text remainingGoldText;
 
-	public GameData gameData;
+		List<GameObject> storeInvGameObjects = new List<GameObject> ();
+	#endregion gameobjects
 
 	#region uiobjects
-	public GameObject ListAllItems_Values;
-	public GameObject ListAllItems_SampleValue;
+		#region ListAllItems
+			public GameObject ListAllItems_Values;
+			public GameObject ListAllItems_SampleValue;
 
-	public GameObject ListAllItems_Buttons;
-	public GameObject ListAllItems_SampleButton;
+			public GameObject ListAllItems_Buttons;
+			public GameObject ListAllItems_SampleButton;
+		#endregion ListAllItems
+
+		#region ListAllItems
+			public GameObject ListStoreInv_Values;
+			public GameObject ListStoreInv_SampleValue;
+					
+			public GameObject ListStoreInv_Buttons;
+			public GameObject ListStoreInv_SampleButton;
+		#endregion ListAllItems
 	#endregion uiobjects
 
 	// Use this for initialization
 	void Start () 
 	{
 		getComponents ();
-		copyAllItemButtons ();
+		setupMasterItems ();
+		setupStoreInv ();
+		setupGold ();
+
 	}
 
 	void getComponents()
 	{
 		gameData = GameObject.Find ("GameData").GetComponent<GameData> ();
+
+		remainingGoldText = GameObject.Find ("RemainingGold").GetComponent<Text> ();
+
 		ListAllItems_Values = GameObject.Find ("ListAllItems_Values");
 		ListAllItems_SampleValue = GameObject.Find ("ListAllItems_SampleValue");
 
 		ListAllItems_Buttons = GameObject.Find ("ListAllItems_Buttons");
 		ListAllItems_SampleButton = GameObject.Find ("ListAllItems_SampleButton");
+
+		ListStoreInv_Values = GameObject.Find ("ListStoreInv_Values");
+		ListStoreInv_SampleValue = GameObject.Find ("ListStoreInv_SampleValue");
+		
+		ListStoreInv_Buttons = GameObject.Find ("ListStoreInv_Buttons");
+		ListStoreInv_SampleButton = GameObject.Find ("ListStoreInv_SampleButton");
+
 	}
 
-	void copyAllItemButtons()
+	void setupMasterItems()
 	{
+		ListAllItems_SampleValue.SetActive(true);
+		ListAllItems_SampleButton.SetActive(true);
+
 		for (int i = 0; i < gameData.allItems.Count; i++) 
 		{
 			GameObject newValue_Name = (GameObject) Instantiate (ListAllItems_SampleValue);
@@ -57,10 +87,118 @@ public class SimpleSetupShopScene : MonoBehaviour
 
 			GameObject newButton = (GameObject) Instantiate(ListAllItems_SampleButton);
 			newButton.transform.parent = ListAllItems_Buttons.transform;
+			int param = gameData.allItems[i].id;
+			newButton.GetComponent<Button>().onClick.AddListener(delegate { addStoreInvItem(param); });
 		}
 
-		Destroy (ListAllItems_SampleValue);
-		Destroy (ListAllItems_SampleButton);
+		ListAllItems_SampleValue.SetActive(false);
+		ListAllItems_SampleButton.SetActive(false);
 	}
 
+	void setupStoreInv()
+	{
+		ListStoreInv_SampleValue.SetActive(true);
+		ListStoreInv_SampleButton.SetActive(true);
+
+		for (int k = 0; k < gameData.player.itemCount.Count; k++) 
+		{
+			int i = gameData.player.itemCount.ElementAt (k).Key;
+
+			GameObject newValue_Count = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Count.transform.parent = ListStoreInv_Values.transform;
+			newValue_Count.GetComponent<Text>().text = gameData.player.itemCount.Values.ToList ()[k].ToString ();
+
+			GameObject newValue_Name = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Name.transform.parent = ListStoreInv_Values.transform;
+			newValue_Name.GetComponent<Text>().text = gameData.allItems[i].name;
+			
+			GameObject newValue_Type = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Type.transform.parent = ListStoreInv_Values.transform;
+			newValue_Type.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].itemType.name;
+			
+			GameObject newValue_Desc = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Desc.transform.parent = ListStoreInv_Values.transform;
+			newValue_Desc.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].desc;
+			
+			GameObject newValue_Cost = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Cost.transform.parent = ListStoreInv_Values .transform;
+			newValue_Cost.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].cost.ToString (); 
+			
+			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
+			newButton.transform.parent = ListStoreInv_Buttons.transform;
+			int param = gameData.allItems[i].id;
+			newButton.GetComponent<Button>().onClick.AddListener(delegate { removeStoreInvItem(param); });
+
+			storeInvGameObjects.Add (newValue_Count);
+			storeInvGameObjects.Add (newValue_Name);
+			storeInvGameObjects.Add (newValue_Type);
+			storeInvGameObjects.Add (newValue_Desc);
+			storeInvGameObjects.Add (newValue_Cost);
+			storeInvGameObjects.Add (newButton);
+		}
+		
+		ListStoreInv_SampleValue.SetActive(false);
+		ListStoreInv_SampleButton.SetActive(false);
+	}
+	
+	void setupGold()
+	{
+		remainingGoldText.text = "Remaining Gold: " + gameData.player.gold;
+	}
+
+	void destroyStoreInvObjects()
+	{
+		foreach (GameObject go in storeInvGameObjects) 
+		{
+			Destroy (go);
+		}
+	}
+
+	void addStoreInvItem(int itemID)
+	{
+		if (gameData.allItems [itemID].cost <= gameData.player.gold) 
+		{
+			destroyStoreInvObjects ();
+
+			if (gameData.player.itemCount.ContainsKey (itemID)) 
+			{
+				gameData.player.itemCount [itemID]++;
+				setupStoreInv ();
+				gameData.player.gold -= gameData.allItems [itemID].cost;
+				setupGold ();
+			} 
+			else 
+			{
+				gameData.player.itemCount.Add (itemID, 1);
+				setupStoreInv ();
+				gameData.player.gold -= gameData.allItems [itemID].cost;
+				setupGold ();
+			}
+		} 
+		else 
+		{
+			Debug.Log("Not enough cash");
+		}
+	}
+
+	void removeStoreInvItem(int itemID)
+	{
+		destroyStoreInvObjects();
+
+		if (gameData.player.itemCount [itemID] == 1) 
+		{
+			print ("Only one remaining");
+			gameData.player.gold += gameData.allItems [itemID].cost;
+			gameData.player.itemCount.Remove (itemID);
+			setupStoreInv ();
+			setupGold ();
+		} 
+		else 
+		{
+			gameData.player.itemCount[itemID]--;
+			gameData.player.gold += gameData.allItems [itemID].cost;
+			setupStoreInv ();
+			setupGold ();
+		}
+	}
 }
