@@ -21,6 +21,10 @@ public class SimpleSetupShopScene : MonoBehaviour
 
 			public GameObject ListAllItems_Buttons;
 			public GameObject ListAllItems_SampleButton;
+
+			public GameObject ListAllItems_ScrollContent;
+			public GameObject ListAllItems_ScrollView;
+			public GameObject ListAllItems_ScrollBar;
 		#endregion ListAllItems
 
 		#region ListAllItems
@@ -60,13 +64,26 @@ public class SimpleSetupShopScene : MonoBehaviour
 		ListStoreInv_Buttons = GameObject.Find ("ListStoreInv_Buttons");
 		ListStoreInv_SampleButton = GameObject.Find ("ListStoreInv_SampleButton");
 
+		ListAllItems_ScrollContent = GameObject.Find ("ListAllItems_ScrollContent");
+		ListAllItems_ScrollView = GameObject.Find ("ListAllItems_ScrollView");
+		ListAllItems_ScrollBar = GameObject.Find ("ListAllItems_ScrollBar");
 	}
 
 	void setupMasterItems()
 	{
 		ListAllItems_SampleValue.SetActive(true);
 		ListAllItems_SampleButton.SetActive(true);
+		Vector2 ListALlItems_ScrollContent_Vector2 = 
+			new Vector2 (
+				ListAllItems_ScrollContent.GetComponent<RectTransform> ().sizeDelta.x
+				, Mathf.Max (
+					ListStoreInv_Buttons.GetComponent<GridLayoutGroup>().cellSize.y * gameData.allItems.Count
+					,ListAllItems_ScrollView.GetComponent<RectTransform>().sizeDelta.y
+				)
+			);
 
+		ListAllItems_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListALlItems_ScrollContent_Vector2;
+		ListAllItems_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 		for (int i = 0; i < gameData.allItems.Count; i++) 
 		{
 			GameObject newValue_Name = (GameObject) Instantiate (ListAllItems_SampleValue);

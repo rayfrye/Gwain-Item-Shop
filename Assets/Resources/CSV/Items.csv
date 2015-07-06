@@ -6,3 +6,10 @@ ID,Name,Desc,Cost,Type
 4,Light shoes,Some light shoes.,10,4
 5,Wooden sword,Does absolutely no damage,10,5
 6,Wooden shield,Will protect you from absolutely nothing.,10,6
+7,Iron Helmet,Provides some protection,20,0
+8,Iron Armor,Some protection,20,1
+9,Iron Greaves,Some protection,20,2
+10,Iron Gauntlets,Some protection,20,3
+11,Iron Boots,Some Protection,20,4
+12,Iron Sword,Some damage,20,5
+13,Iron Shield,Some Protection,20,6
