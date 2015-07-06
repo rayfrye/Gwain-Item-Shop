@@ -53,7 +53,7 @@ public class GameData : MonoBehaviour
 		
 		for (int row = 0; row < itemTypesFromFile.GetLength (0); row++) 
 		{
-			ItemType newItemType = new ItemType();
+			ItemType newItemType = ScriptableObject.CreateInstance<ItemType>();
 
 			newItemType.id = int.Parse (itemTypesFromFile[row,0]);
 			newItemType.name = itemTypesFromFile[row,1];
@@ -68,7 +68,7 @@ public class GameData : MonoBehaviour
 
 		for (int row = 0; row < allItemsFromFile.GetLength (0); row++) 
 		{
-			Item newItem = new Item();
+			Item newItem = ScriptableObject.CreateInstance<Item>();
 
 			newItem.id = int.Parse (allItemsFromFile[row,0]);
 			newItem.name = allItemsFromFile[row,1];
@@ -83,7 +83,7 @@ public class GameData : MonoBehaviour
 	void loadPlayer()
 	{
 		string[,] playerDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/Player.csv");
-		player = new Player ();
+		player = ScriptableObject.CreateInstance<Player>();
 
 		player.gold = int.Parse (playerDataFromFile [0, 1]);
 		player.name = playerDataFromFile [0, 0];

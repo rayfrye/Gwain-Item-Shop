@@ -87,23 +87,23 @@ public class SimpleSetupShopScene : MonoBehaviour
 		for (int i = 0; i < gameData.allItems.Count; i++) 
 		{
 			GameObject newValue_Name = (GameObject) Instantiate (ListAllItems_SampleValue);
-			newValue_Name.transform.parent = ListAllItems_Values.transform;
+			newValue_Name.transform.SetParent (ListAllItems_Values.transform);
 			newValue_Name.GetComponent<Text>().text = gameData.allItems[i].name;
 
 			GameObject newValue_Type = (GameObject) Instantiate (ListAllItems_SampleValue);
-			newValue_Type.transform.parent = ListAllItems_Values.transform;
+			newValue_Type.transform.SetParent (ListAllItems_Values.transform);
 			newValue_Type.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].itemType.name;
 
 			GameObject newValue_Desc = (GameObject) Instantiate (ListAllItems_SampleValue);
-			newValue_Desc.transform.parent = ListAllItems_Values.transform;
+			newValue_Desc.transform.SetParent (ListAllItems_Values.transform);
 			newValue_Desc.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].desc;
 
 			GameObject newValue_Cost = (GameObject) Instantiate (ListAllItems_SampleValue);
-			newValue_Cost.transform.parent = ListAllItems_Values .transform;
+			newValue_Cost.transform.SetParent (ListAllItems_Values .transform);
 			newValue_Cost.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].cost.ToString (); 
 
 			GameObject newButton = (GameObject) Instantiate(ListAllItems_SampleButton);
-			newButton.transform.parent = ListAllItems_Buttons.transform;
+			newButton.transform.SetParent (ListAllItems_Buttons.transform);
 			int param = gameData.allItems[i].id;
 			newButton.GetComponent<Button>().onClick.AddListener(delegate { addStoreInvItem(param); });
 		}
@@ -122,27 +122,27 @@ public class SimpleSetupShopScene : MonoBehaviour
 			int i = gameData.player.itemCount.ElementAt (k).Key;
 
 			GameObject newValue_Count = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Count.transform.parent = ListStoreInv_Values.transform;
+			newValue_Count.transform.SetParent(ListStoreInv_Values.transform);
 			newValue_Count.GetComponent<Text>().text = gameData.player.itemCount.Values.ToList ()[k].ToString ();
 
 			GameObject newValue_Name = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Name.transform.parent = ListStoreInv_Values.transform;
+			newValue_Name.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Name.GetComponent<Text>().text = gameData.allItems[i].name;
 			
 			GameObject newValue_Type = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Type.transform.parent = ListStoreInv_Values.transform;
+			newValue_Type.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Type.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].itemType.name;
 			
 			GameObject newValue_Desc = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Desc.transform.parent = ListStoreInv_Values.transform;
+			newValue_Desc.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Desc.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].desc;
 			
 			GameObject newValue_Cost = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Cost.transform.parent = ListStoreInv_Values .transform;
+			newValue_Cost.transform.SetParent (ListStoreInv_Values .transform);
 			newValue_Cost.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].cost.ToString (); 
 			
 			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
-			newButton.transform.parent = ListStoreInv_Buttons.transform;
+			newButton.transform.SetParent (ListStoreInv_Buttons.transform);
 			int param = gameData.allItems[i].id;
 			newButton.GetComponent<Button>().onClick.AddListener(delegate { removeStoreInvItem(param); });
 
@@ -194,7 +194,7 @@ public class SimpleSetupShopScene : MonoBehaviour
 		} 
 		else 
 		{
-			Debug.Log("Not enough cash");
+			Debug.Log("Need more cash homie");
 		}
 	}
 
@@ -204,7 +204,6 @@ public class SimpleSetupShopScene : MonoBehaviour
 
 		if (gameData.player.itemCount [itemID] == 1) 
 		{
-			print ("Only one remaining");
 			gameData.player.gold += gameData.allItems [itemID].cost;
 			gameData.player.itemCount.Remove (itemID);
 			setupStoreInv ();

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Player : MonoBehaviour 
+public class Player : ScriptableObject 
 {
 	public string name;
 	public int gold;
