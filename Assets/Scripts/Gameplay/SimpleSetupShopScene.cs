@@ -6,6 +6,11 @@ using System.Linq;
 
 public class SimpleSetupShopScene : MonoBehaviour 
 {
+	#region commonComponents
+	public SaveData saveData;
+	public ReadCSV readCSV;
+	#endregion commonComponents
+
 	#region gameobjects
 		public GameObject Items;
 		public GameData gameData;
@@ -34,6 +39,8 @@ public class SimpleSetupShopScene : MonoBehaviour
 			public GameObject ListStoreInv_Buttons;
 			public GameObject ListStoreInv_SampleButton;
 		#endregion ListAllItems
+
+		public GameObject StartGame_Button;
 	#endregion uiobjects
 
 	// Use this for initialization
@@ -48,6 +55,10 @@ public class SimpleSetupShopScene : MonoBehaviour
 
 	void getComponents()
 	{
+		GameObject functions = GameObject.Find ("Functions");
+		saveData = functions.GetComponent<SaveData> ();
+		readCSV = functions.GetComponent<ReadCSV> ();
+
 		gameData = GameObject.Find ("GameData").GetComponent<GameData> ();
 
 		remainingGoldText = GameObject.Find ("RemainingGold").GetComponent<Text> ();
@@ -67,6 +78,10 @@ public class SimpleSetupShopScene : MonoBehaviour
 		ListAllItems_ScrollContent = GameObject.Find ("ListAllItems_ScrollContent");
 		ListAllItems_ScrollView = GameObject.Find ("ListAllItems_ScrollView");
 		ListAllItems_ScrollBar = GameObject.Find ("ListAllItems_ScrollBar");
+
+		StartGame_Button = GameObject.Find ("StartGame_Button");
+		StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
+
 	}
 
 	void setupMasterItems()
@@ -215,6 +230,21 @@ public class SimpleSetupShopScene : MonoBehaviour
 			gameData.player.gold += gameData.allItems [itemID].cost;
 			setupStoreInv ();
 			setupGold ();
+		}
+	}
+
+	public void startGame()
+	{
+		StartCoroutine ("saveGame");
+
+
+	}
+
+	IEnumerator saveGame()
+	{
+		if (saveData.saveData (gameData.player, 1)) 
+		{
+			yield return null;
 		}
 	}
 }

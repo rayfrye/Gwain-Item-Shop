@@ -7,6 +7,17 @@ using System.Linq;
 
 public class SaveData : MonoBehaviour 
 {
+	public bool saveData(Player player, int saveGameNum)
+	{
+		string playerSaveData = "";
+
+		playerSaveData = player.name + "," + player.gold.ToString ();
+
+		File.WriteAllText("./Assets/Resources/SaveData/SaveGame"+saveGameNum+"/player.csv",playerSaveData);
+
+		return true;
+	}
+
 //	public void saveData(List<Quest> quests)
 //	{
 //		saveQuestData(quests);

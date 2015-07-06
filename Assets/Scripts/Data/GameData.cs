@@ -85,8 +85,9 @@ public class GameData : MonoBehaviour
 		string[,] playerDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/Player.csv");
 		player = ScriptableObject.CreateInstance<Player>();
 
-		player.gold = int.Parse (playerDataFromFile [0, 1]);
 		player.name = playerDataFromFile [0, 0];
+		player.gold = int.Parse (playerDataFromFile [0, 1]);
+
 
 	}
 
