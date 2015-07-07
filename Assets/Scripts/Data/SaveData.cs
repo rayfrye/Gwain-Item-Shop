@@ -9,20 +9,25 @@ public class SaveData : MonoBehaviour
 {
 	public bool saveData(Player player, int saveGameNum)
 	{
-		string playerSaveData = "";
+		string[] playerSaveData = new string[2];
 
-		playerSaveData = player.name + "," + player.gold.ToString ();
+		playerSaveData[0] = "name,gold";
 
-		File.WriteAllText("./Assets/Resources/SaveData/SaveGame"+saveGameNum+"/player.csv",playerSaveData);
+		playerSaveData[1] = player.name + "," + player.gold.ToString ();
 
-		string[] playerItemData = new string[player.itemCount.Count];
+		File.WriteAllLines("./Assets/Resources/SaveData/SaveGame"+saveGameNum+"/player.csv",playerSaveData);
+
+		string[] playerItemData = new string[player.itemCount.Count+1];
+		playerItemData [0] = "itemID,itemCount";
 
 		for (int i = 0; i < player.itemCount.Count; i++) 
 		{
-			playerItemData[i] = player.itemCount.ElementAt (i).Key + "," + player.itemCount.ElementAt (i).Value;
+			playerItemData[i+1] = player.itemCount.ElementAt (i).Key + "," + player.itemCount.ElementAt (i).Value;
 		}
 
 		File.WriteAllLines("./Assets/Resources/SaveData/SaveGame"+saveGameNum+"/storeInventory.csv",playerItemData);
+
+		File.WriteAllText("./Assets/Resources/SaveData/LastLoadedGame.csv","last loaded level\n" + saveGameNum.ToString ());
 
 		return true;
 	}	

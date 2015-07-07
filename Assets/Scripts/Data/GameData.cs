@@ -44,7 +44,28 @@ public class GameData : MonoBehaviour
 		loadItemTypes ();
 		loadItems ();
 		loadPlayer ();
-		setupSimpleShopInventoryScene ();
+		loadSceneData();
+	}
+
+	void loadSceneData()
+	{
+		switch (Application.loadedLevelName)
+		{
+		case "Simple Setup Shop":
+		{
+			setupSimpleShopInventoryScene ();
+			break;
+		}
+		case "Simple Run Shop":
+		{
+			setupSimpleRunShopInventoryScene();
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
 	}
 
 	void loadItemTypes()
@@ -94,5 +115,10 @@ public class GameData : MonoBehaviour
 	void setupSimpleShopInventoryScene()
 	{
 		gameObject.AddComponent<SimpleSetupShopScene> ();
+	}
+
+	void setupSimpleRunShopInventoryScene()
+	{
+		gameObject.AddComponent<SimpleRunShopScene> ();
 	}
 }
