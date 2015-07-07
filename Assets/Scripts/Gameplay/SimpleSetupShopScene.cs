@@ -198,7 +198,7 @@ public class SimpleSetupShopScene : MonoBehaviour
 				setupStoreInv ();
 				gameData.player.gold -= gameData.allItems [itemID].cost;
 				setupGold ();
-			} 
+			}
 			else 
 			{
 				gameData.player.itemCount.Add (itemID, 1);
@@ -223,8 +223,8 @@ public class SimpleSetupShopScene : MonoBehaviour
 			gameData.player.itemCount.Remove (itemID);
 			setupStoreInv ();
 			setupGold ();
-		} 
-		else 
+		}
+		else
 		{
 			gameData.player.itemCount[itemID]--;
 			gameData.player.gold += gameData.allItems [itemID].cost;
