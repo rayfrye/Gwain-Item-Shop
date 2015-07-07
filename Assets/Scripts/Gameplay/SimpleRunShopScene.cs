@@ -131,7 +131,7 @@ public class SimpleRunShopScene : MonoBehaviour
 			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
 			newButton.transform.SetParent (ListStoreInv_Buttons.transform);
 			int param = gameData.allItems[i].id;
-			newButton.GetComponent<Button>().onClick.AddListener(delegate { removeStoreInvItem(param); });
+			newButton.GetComponent<Button>().onClick.AddListener(delegate { trySellingToNPC(param); });
 			
 			storeInvGameObjects.Add (newValue_Count);
 			storeInvGameObjects.Add (newValue_Name);
@@ -202,10 +202,10 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		setupStoreInv ();
 		setupGold ();
-		sellToCurrentNPC(gameData.allItems [itemID].cost, itemID);
+		completeNPCTransaction(gameData.allItems [itemID].cost, itemID);
 	}
 
-	void sellToCurrentNPC(int cost, int itemID)
+	void completeNPCTransaction(int cost, int itemID)
 	{
 		gameData.npcs [currentNPC].gold -= cost;
 
@@ -219,6 +219,49 @@ public class SimpleRunShopScene : MonoBehaviour
 		}
 
 		//debugNPCGoldAndInv ();
+	}
+
+	void trySellingToNPC(int itemID)
+	{
+		bool npcNeedsItem = true;
+
+		Dictionary<int, int> npcItemCount = gameData.npcs [currentNPC].itemCount;
+
+		//loop through npcs items to see if they have equivelant item already
+		for (int i = 0; i < npcItemCount.Count; i++) 
+		{
+			npcNeedsItem = testItem (itemID,npcItemCount.ElementAt (i).Key);
+
+			if(!npcNeedsItem)
+			{
+				break;
+			}
+		}
+
+		print (npcNeedsItem);
+
+		if (!npcNeedsItem) 
+		{
+			nextCustomer ();
+		} 
+		else 
+		{
+			removeStoreInvItem(itemID);
+		}
+
+	}
+
+	bool testItem(int item1, int item2)
+	{
+		print (item1 + " " + item2);
+		if (item1 == item2) 
+		{
+			return false;
+		}
+		else 
+		{
+			return true;
+		}
 	}
 
 	void debugNPCGoldAndInv()
@@ -235,7 +278,15 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	void nextCustomer()
 	{
-		currentNPC++;
+		if (currentNPC + 1 < gameData.npcs.Count) 
+		{
+			currentNPC++;
+		} 
+		else 
+		{
+			currentNPC = 0;
+		}
+
 		writeDialogueToScreen ();
 	}
 
@@ -245,7 +296,7 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		destroyGameObjects (dialogueGameObjects);
 
-		NPCDialogue_Text.GetComponent<Text>().text = gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
+		NPCDialogue_Text.GetComponent<Text>().text = gameData.npcs [currentNPC].name + ": " + gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
 
 		PlayerResponse_SampleButton.SetActive (true);
 
@@ -291,7 +342,7 @@ public class SimpleRunShopScene : MonoBehaviour
 			}
 			case 1:
 			{
-				print (1);
+				nextCustomer();
 				break;
 			}
 			case 2:
