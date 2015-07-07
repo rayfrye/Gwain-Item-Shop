@@ -17,6 +17,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	public Text remainingGoldText;
 	
 	List<GameObject> storeInvGameObjects = new List<GameObject> ();
+	List<GameObject> dialogueGameObjects = new List<GameObject>();
 	#endregion gameobjects
 	
 	#region uiobjects
@@ -130,7 +131,7 @@ public class SimpleRunShopScene : MonoBehaviour
 			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
 			newButton.transform.SetParent (ListStoreInv_Buttons.transform);
 			int param = gameData.allItems[i].id;
-			//newButton.GetComponent<Button>().onClick.AddListener(delegate { removeStoreInvItem(param); });
+			newButton.GetComponent<Button>().onClick.AddListener(delegate { removeStoreInvItem(param); });
 			
 			storeInvGameObjects.Add (newValue_Count);
 			storeInvGameObjects.Add (newValue_Name);
@@ -149,9 +150,9 @@ public class SimpleRunShopScene : MonoBehaviour
 		remainingGoldText.text = "Remaining Gold: " + gameData.player.gold;
 	}
 	
-	void destroyStoreInvObjects()
+	void destroyGameObjects(List<GameObject> gos)
 	{
-		foreach (GameObject go in storeInvGameObjects) 
+		foreach (GameObject go in gos) 
 		{
 			Destroy (go);
 		}
@@ -161,7 +162,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		if (gameData.allItems [itemID].cost <= gameData.player.gold) 
 		{
-			destroyStoreInvObjects ();
+			destroyGameObjects(storeInvGameObjects);
 			
 			if (gameData.player.itemCount.ContainsKey (itemID))
 			{
@@ -186,33 +187,64 @@ public class SimpleRunShopScene : MonoBehaviour
 	
 	void removeStoreInvItem(int itemID)
 	{
-		destroyStoreInvObjects();
+		destroyGameObjects(storeInvGameObjects);
 		
 		if (gameData.player.itemCount [itemID] == 1) 
 		{
 			gameData.player.gold += gameData.allItems [itemID].cost;
 			gameData.player.itemCount.Remove (itemID);
-			setupStoreInv ();
-			setupGold ();
 		}
 		else
 		{
 			gameData.player.itemCount[itemID]--;
 			gameData.player.gold += gameData.allItems [itemID].cost;
-			setupStoreInv ();
-			setupGold ();
 		}
+
+		setupStoreInv ();
+		setupGold ();
+		sellToCurrentNPC(gameData.allItems [itemID].cost, itemID);
+	}
+
+	void sellToCurrentNPC(int cost, int itemID)
+	{
+		gameData.npcs [currentNPC].gold -= cost;
+
+		if (gameData.npcs [currentNPC].itemCount.ContainsKey (itemID)) 
+		{
+			gameData.npcs [currentNPC].itemCount[itemID]++;
+		}
+		else 
+		{
+			gameData.npcs [currentNPC].itemCount.Add (itemID, 1);
+		}
+
+		//debugNPCGoldAndInv ();
+	}
+
+	void debugNPCGoldAndInv()
+	{
+		string s = gameData.npcs [currentNPC].gold + "\n";
+
+		for (int i = 0; i < gameData.npcs [currentNPC].itemCount.Count; i++) 
+		{
+			s += gameData.npcs [currentNPC].itemCount.ElementAt (i).Key + " " + gameData.npcs [currentNPC].itemCount.ElementAt (i).Value + "\n";
+		}
+
+		Debug.Log (s);
 	}
 
 	void nextCustomer()
 	{
-		//currentNPC = gameData.npcs [currentNPC];
-
-
+		currentNPC++;
+		writeDialogueToScreen ();
 	}
 
 	void writeDialogueToScreen()
 	{
+		//debugNPCGoldAndInv ();
+
+		destroyGameObjects (dialogueGameObjects);
+
 		NPCDialogue_Text.GetComponent<Text>().text = gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
 
 		PlayerResponse_SampleButton.SetActive (true);
@@ -224,6 +256,8 @@ public class SimpleRunShopScene : MonoBehaviour
 			newResponse_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i]];
 			int param = gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i];
 			newResponse_Button.GetComponent<Button>().onClick.AddListener(delegate { dialogueAction(param); });
+
+			dialogueGameObjects.Add(newResponse_Button);
 		}
 
 		PlayerResponse_SampleButton.SetActive (false);
