@@ -18,6 +18,7 @@ public class GameData : MonoBehaviour
 
 		#region dialogueData
 			public Dictionary<int,string> dialogueText = new Dictionary<int, string>();
+			public Dictionary<int,List<int>> dialogueActions = new Dictionary<int,List<int>> ();
 		#endregion dialogueData
 
 		#region NPCData
@@ -29,8 +30,6 @@ public class GameData : MonoBehaviour
 	#region functionscripts
 		public ReadCSV readCSV;
 	#endregion functionscripts
-
-
 
 	// Use this for initialization
 	void Start () 
@@ -151,10 +150,14 @@ public class GameData : MonoBehaviour
 
 					for(int l = 0; l < npcDialogueResponseDataFromFile.GetLength (0); l++)
 					{
-						dialogueResponseIDs.Add (int.Parse (npcDialogueResponseDataFromFile[l,1]));
+						if(npcDialogueResponseDataFromFile[l,0] == npcDialogueDataFromFile[i,1])
+						{
+							dialogueResponseIDs.Add (int.Parse (npcDialogueResponseDataFromFile[l,1]));
+						}
 					}
-
+					
 					newNPC.dialogueReponseIDs.Add (int.Parse (npcDialogueDataFromFile[i,1]),dialogueResponseIDs);
+
 				}
 			}
 			
@@ -165,13 +168,26 @@ public class GameData : MonoBehaviour
 	void loadDialogueData()
 	{
 		string[,] dialogueDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/Dialogue.csv");
+		string[,] dialogueActionsDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/dialogueActions.csv");
 		
-		for (int row = 0; row < dialogueDataFromFile.GetLength (0); row++) 
+		for (int row = 0; row < dialogueDataFromFile.GetLength (0); row++)
 		{
 			dialogueText.Add(int.Parse (dialogueDataFromFile[row,0]),dialogueDataFromFile[row,1]);
+
+			List<int> dialogueActionIDs = new List<int>();
+			
+			for(int l = 0; l < dialogueActionsDataFromFile.GetLength (0); l++)
+			{
+				if(dialogueActionsDataFromFile[l,0] == dialogueDataFromFile[row,0])
+				{
+					dialogueActionIDs.Add (int.Parse (dialogueActionsDataFromFile[l,1]));
+				}
+			}
+
+			dialogueActions.Add (int.Parse (dialogueDataFromFile[row,0]),dialogueActionIDs);
 		}
 	}
-
+	
 	void setupSimpleShopInventoryScene()
 	{
 		gameObject.AddComponent<SimpleSetupShopScene> ();

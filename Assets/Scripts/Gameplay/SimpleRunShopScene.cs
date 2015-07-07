@@ -31,9 +31,8 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	#region dialogueGameObjects
 	public GameObject NPCDialogue_Text;
-	public GameObject PlayerResponse1_Button;
-	public GameObject PlayerResponse2_Button;
-	public GameObject PlayerResponse3_Button;
+	public GameObject Dialogue_ResponsePanel;
+	public GameObject PlayerResponse_SampleButton;
 	#endregion dialogueGameObjects
 	
 	public GameObject StartGame_Button;
@@ -80,9 +79,8 @@ public class SimpleRunShopScene : MonoBehaviour
 		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
 
 		NPCDialogue_Text = GameObject.Find ("NPCDialogue_Text");
-		PlayerResponse1_Button = GameObject.Find ("PlayerResponse1_Button");
-		PlayerResponse2_Button = GameObject.Find ("PlayerResponse2_Button");
-		PlayerResponse3_Button = GameObject.Find ("PlayerResponse3_Button");
+		Dialogue_ResponsePanel = GameObject.Find ("Dialogue_ResponsePanel");
+		PlayerResponse_SampleButton = GameObject.Find ("PlayerResponse_SampleButton");
 	}
 
 	void loadPlayerData()
@@ -216,9 +214,19 @@ public class SimpleRunShopScene : MonoBehaviour
 	void writeDialogueToScreen()
 	{
 		NPCDialogue_Text.GetComponent<Text>().text = gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
-		PlayerResponse1_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[0]];
-		PlayerResponse2_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[1]];
-		PlayerResponse3_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[2]];
+
+		PlayerResponse_SampleButton.SetActive (true);
+
+		for (int i = 0; i < gameData.npcs [currentNPC].dialogueReponseIDs.Count; i++) 
+		{
+			GameObject newResponse_Button = (GameObject)Instantiate (PlayerResponse_SampleButton);
+			newResponse_Button.transform.SetParent (Dialogue_ResponsePanel.transform);
+			newResponse_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i]];
+			int param = gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i];
+			newResponse_Button.GetComponent<Button>().onClick.AddListener(delegate { dialogueAction(param); });
+		}
+
+		PlayerResponse_SampleButton.SetActive (false);
 	}
 	
 	public void startGame()
@@ -231,6 +239,37 @@ public class SimpleRunShopScene : MonoBehaviour
 		if (saveData.saveData (gameData.player, 1)) 
 		{
 			yield return null;
+		}
+	}
+
+	void dialogueAction(int dialogueTextID)
+	{
+		List<int> dialogueIDs = gameData.dialogueActions.ElementAt (dialogueTextID).Value;
+		
+		foreach (int dialogueID in dialogueIDs) 
+		{
+			switch(dialogueID)
+			{
+			case 0:
+			{
+				print (0);
+				break;
+			}
+			case 1:
+			{
+				print (1);
+				break;
+			}
+			case 2:
+			{
+				print (2);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
 		}
 	}
 }
