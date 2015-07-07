@@ -200,15 +200,15 @@ public class SimpleSetupShopScene : MonoBehaviour
 				gameData.player.gold -= gameData.allItems [itemID].cost;
 				setupGold ();
 			}
-			else 
+			else
 			{
 				gameData.player.itemCount.Add (itemID, 1);
 				setupStoreInv ();
 				gameData.player.gold -= gameData.allItems [itemID].cost;
 				setupGold ();
 			}
-		} 
-		else 
+		}
+		else
 		{
 			Debug.Log("Need more cash homie");
 		}

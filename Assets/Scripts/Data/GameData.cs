@@ -13,8 +13,16 @@ public class GameData : MonoBehaviour
 		#endregion itemdata
 
 		#region playerdata
-		public Player player;
+			public Player player;
 		#endregion playerdata
+
+		#region dialogueData
+			public Dictionary<int,string> dialogueText = new Dictionary<int, string>();
+		#endregion dialogueData
+
+		#region NPCData
+			public List<NPC> npcs = new List<NPC> ();
+		#endregion NPCData
 
 	#endregion GameData
 
@@ -45,6 +53,8 @@ public class GameData : MonoBehaviour
 		loadItems ();
 		loadPlayer ();
 		loadSceneData();
+
+
 	}
 
 	void loadSceneData()
@@ -59,6 +69,8 @@ public class GameData : MonoBehaviour
 		case "Simple Run Shop":
 		{
 			setupSimpleRunShopInventoryScene();
+			loadDialogueData();
+			loadNPCData();
 			break;
 		}
 		default:
@@ -108,8 +120,56 @@ public class GameData : MonoBehaviour
 
 		player.name = playerDataFromFile [0, 0];
 		player.gold = int.Parse (playerDataFromFile [0, 1]);
+	}
 
+	void loadNPCData()
+	{
+		string[,] npcDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/NPCs.csv");
+		string[,] npcDialogueDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/NPCDialogue.csv");
+		string[,] npcDialogueResponseDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/NPCDialogueResponses.csv");
 
+		for (int row = 0; row < npcDataFromFile.GetLength (0); row++) 
+		{
+			NPC newNPC = ScriptableObject.CreateInstance<NPC>();
+			
+			newNPC.id = int.Parse (npcDataFromFile[row,0]);
+			newNPC.name = npcDataFromFile[row,1];
+			newNPC.gold = int.Parse (npcDataFromFile[row,2]);
+
+			for(int i = 0; i < 7; i++)
+			{
+				newNPC.itemCount.Add (i,1);
+			}
+
+			for(int i = 0; i < npcDialogueDataFromFile.GetLength (0); i++)
+			{
+				if(npcDialogueDataFromFile[i,0] == newNPC.id.ToString ())
+				{
+					newNPC.dialogueIDs.Add (int.Parse (npcDialogueDataFromFile[i,1]));
+
+					List<int> dialogueResponseIDs = new List<int>();
+
+					for(int l = 0; l < npcDialogueResponseDataFromFile.GetLength (0); l++)
+					{
+						dialogueResponseIDs.Add (int.Parse (npcDialogueResponseDataFromFile[l,1]));
+					}
+
+					newNPC.dialogueReponseIDs.Add (int.Parse (npcDialogueDataFromFile[i,1]),dialogueResponseIDs);
+				}
+			}
+			
+			npcs.Add(newNPC);
+		}
+	}
+
+	void loadDialogueData()
+	{
+		string[,] dialogueDataFromFile = readCSV.getMultiDimCSVData ("./Assets/Resources/CSV/Dialogue.csv");
+		
+		for (int row = 0; row < dialogueDataFromFile.GetLength (0); row++) 
+		{
+			dialogueText.Add(int.Parse (dialogueDataFromFile[row,0]),dialogueDataFromFile[row,1]);
+		}
 	}
 
 	void setupSimpleShopInventoryScene()

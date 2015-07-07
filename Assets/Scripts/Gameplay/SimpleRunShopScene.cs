@@ -28,10 +28,21 @@ public class SimpleRunShopScene : MonoBehaviour
 	public GameObject ListStoreInv_Buttons;
 	public GameObject ListStoreInv_SampleButton;
 	#endregion ListAllItems
+
+	#region dialogueGameObjects
+	public GameObject NPCDialogue_Text;
+	public GameObject PlayerResponse1_Button;
+	public GameObject PlayerResponse2_Button;
+	public GameObject PlayerResponse3_Button;
+	#endregion dialogueGameObjects
 	
 	public GameObject StartGame_Button;
+	public GameObject NextCustomer_Button;
 	#endregion uiobjects
-	
+
+	int currentNPC;
+	int currentNPCDialogueIndex;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -39,6 +50,11 @@ public class SimpleRunShopScene : MonoBehaviour
 		loadPlayerData ();
 		setupStoreInv ();
 		setupGold ();
+
+		currentNPC = 0;
+		currentNPCDialogueIndex = 0;
+
+		writeDialogueToScreen ();
 	}
 	
 	void getComponents()
@@ -58,7 +74,15 @@ public class SimpleRunShopScene : MonoBehaviour
 		ListStoreInv_SampleButton = GameObject.Find ("ListStoreInv_SampleButton");
 		
 		StartGame_Button = GameObject.Find ("StartGame_Button");
-		StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
+		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
+
+		NextCustomer_Button = GameObject.Find ("NextCustomer_Button");
+		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
+
+		NPCDialogue_Text = GameObject.Find ("NPCDialogue_Text");
+		PlayerResponse1_Button = GameObject.Find ("PlayerResponse1_Button");
+		PlayerResponse2_Button = GameObject.Find ("PlayerResponse2_Button");
+		PlayerResponse3_Button = GameObject.Find ("PlayerResponse3_Button");
 	}
 
 	void loadPlayerData()
@@ -141,14 +165,14 @@ public class SimpleRunShopScene : MonoBehaviour
 		{
 			destroyStoreInvObjects ();
 			
-			if (gameData.player.itemCount.ContainsKey (itemID)) 
+			if (gameData.player.itemCount.ContainsKey (itemID))
 			{
 				gameData.player.itemCount [itemID]++;
 				setupStoreInv ();
 				gameData.player.gold -= gameData.allItems [itemID].cost;
 				setupGold ();
 			}
-			else 
+			else
 			{
 				gameData.player.itemCount.Add (itemID, 1);
 				setupStoreInv ();
@@ -180,6 +204,21 @@ public class SimpleRunShopScene : MonoBehaviour
 			setupStoreInv ();
 			setupGold ();
 		}
+	}
+
+	void nextCustomer()
+	{
+		//currentNPC = gameData.npcs [currentNPC];
+
+
+	}
+
+	void writeDialogueToScreen()
+	{
+		NPCDialogue_Text.GetComponent<Text>().text = gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
+		PlayerResponse1_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[0]];
+		PlayerResponse2_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[1]];
+		PlayerResponse3_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt(currentNPCDialogueIndex).Value[2]];
 	}
 	
 	public void startGame()
