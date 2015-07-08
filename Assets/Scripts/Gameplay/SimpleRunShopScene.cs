@@ -40,8 +40,9 @@ public class SimpleRunShopScene : MonoBehaviour
 	public GameObject NextCustomer_Button;
 	#endregion uiobjects
 
-	int currentNPC;
-	int currentNPCDialogueIndex;
+	int currentNPCID;
+	NPC currentNPC;
+	int currentNPCIDDialogueIndex;
 
 	// Use this for initialization
 	void Start () 
@@ -51,10 +52,10 @@ public class SimpleRunShopScene : MonoBehaviour
 		setupStoreInv ();
 		setupGold ();
 
-		currentNPC = 0;
-		currentNPCDialogueIndex = 0;
-
-		writeDialogueToScreen ();
+		currentNPCID = 0;
+		currentNPCIDDialogueIndex = 0;
+	
+		createNextNPC ();
 	}
 	
 	void getComponents()
@@ -77,7 +78,7 @@ public class SimpleRunShopScene : MonoBehaviour
 		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
 
 		NextCustomer_Button = GameObject.Find ("NextCustomer_Button");
-		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
+		NextCustomer_Button.GetComponent<Button>().onClick.AddListener(delegate { createNextNPC(); });
 
 		NPCDialogue_Text = GameObject.Find ("NPCDialogue_Text");
 		Dialogue_ResponsePanel = GameObject.Find ("Dialogue_ResponsePanel");
@@ -203,19 +204,21 @@ public class SimpleRunShopScene : MonoBehaviour
 		setupStoreInv ();
 		setupGold ();
 		completeNPCTransaction(gameData.allItems [itemID].cost, itemID);
+
+		createNextNPC ();
 	}
 
 	void completeNPCTransaction(int cost, int itemID)
 	{
-		gameData.npcs [currentNPC].gold -= cost;
+		currentNPC.gold -= cost;
 
-		if (gameData.npcs [currentNPC].itemCount.ContainsKey (itemID)) 
+		if (currentNPC.itemCount.ContainsKey (itemID)) 
 		{
-			gameData.npcs [currentNPC].itemCount[itemID]++;
+			currentNPC.itemCount[itemID]++;
 		}
 		else 
 		{
-			gameData.npcs [currentNPC].itemCount.Add (itemID, 1);
+			currentNPC.itemCount.Add (itemID, 1);
 		}
 
 		//debugNPCGoldAndInv ();
@@ -225,24 +228,24 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		bool npcNeedsItem = true;
 
-		Dictionary<int, int> npcItemCount = gameData.npcs [currentNPC].itemCount;
+//		Dictionary<int, int> npcItemCount = currentNPC.itemCount;
+//
+//		//loop through npcs items to see if they have equivelant item already
+//		for (int i = 0; i < npcItemCount.Count; i++) 
+//		{
+//			npcNeedsItem = testItem (itemID,npcItemCount.ElementAt (i).Key);
+//
+//			if(!npcNeedsItem)
+//			{
+//				break;
+//			}
+//		}
 
-		//loop through npcs items to see if they have equivelant item already
-		for (int i = 0; i < npcItemCount.Count; i++) 
-		{
-			npcNeedsItem = testItem (itemID,npcItemCount.ElementAt (i).Key);
-
-			if(!npcNeedsItem)
-			{
-				break;
-			}
-		}
-
-		print (npcNeedsItem);
+		npcNeedsItem = testItem (itemID,currentNPC.itemTypeNeed);
 
 		if (!npcNeedsItem) 
 		{
-			nextCustomer ();
+			//createNextNPC ();
 		} 
 		else 
 		{
@@ -253,8 +256,7 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	bool testItem(int item1, int item2)
 	{
-		print (item1 + " " + item2);
-		if (item1 == item2) 
+		if (gameData.allItems[item1].itemType != gameData.allItems[item2].itemType) 
 		{
 			return false;
 		}
@@ -266,26 +268,33 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	void debugNPCGoldAndInv()
 	{
-		string s = gameData.npcs [currentNPC].gold + "\n";
+		string s = currentNPC.gold + "\n";
 
-		for (int i = 0; i < gameData.npcs [currentNPC].itemCount.Count; i++) 
+		for (int i = 0; i < currentNPC.itemCount.Count; i++) 
 		{
-			s += gameData.npcs [currentNPC].itemCount.ElementAt (i).Key + " " + gameData.npcs [currentNPC].itemCount.ElementAt (i).Value + "\n";
+			s += currentNPC.itemCount.ElementAt (i).Key + " " + currentNPC.itemCount.ElementAt (i).Value + "\n";
 		}
 
 		Debug.Log (s);
 	}
 
-	void nextCustomer()
+	void createNextNPC()
 	{
-		if (currentNPC + 1 < gameData.npcs.Count) 
-		{
-			currentNPC++;
-		} 
-		else 
-		{
-			currentNPC = 0;
-		}
+		currentNPCID++;
+		currentNPC = ScriptableObject.CreateInstance <NPC> ();
+
+		currentNPC.id = currentNPCID;
+		currentNPC.name = "Customer " + currentNPCID;
+		currentNPC.gold = Random.Range (10, 100);
+
+		currentNPC.itemTypeNeed = Random.Range (0, gameData.itemTypes.Count);
+		currentNPC.questDifficultyLevel = Random.Range (0, 10);
+
+		currentNPC.dialogueIDs.Add (4);
+		List<int> responseIDs = new List<int> ();
+		responseIDs.Add (5);
+		responseIDs.Add (6);
+		currentNPC.dialogueReponseIDs.Add (4, responseIDs);
 
 		writeDialogueToScreen ();
 	}
@@ -296,16 +305,17 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		destroyGameObjects (dialogueGameObjects);
 
-		NPCDialogue_Text.GetComponent<Text>().text = gameData.npcs [currentNPC].name + ": " + gameData.dialogueText[gameData.npcs [currentNPC].dialogueIDs [currentNPCDialogueIndex]];
+		//NPCDialogue_Text.GetComponent<Text>().text = currentNPC.name + ": " + gameData.dialogueText[currentNPC.dialogueIDs [currentNPCIDDialogueIndex]];
+		NPCDialogue_Text.GetComponent<Text>().text = currentNPC.name + ": I'm looking for a " + gameData.itemTypes[currentNPC.itemTypeNeed].name;
 
 		PlayerResponse_SampleButton.SetActive (true);
 
-		for (int i = 0; i < gameData.npcs [currentNPC].dialogueReponseIDs.Count; i++) 
+		for (int i = 0; i < currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value.Count; i++) 
 		{
 			GameObject newResponse_Button = (GameObject)Instantiate (PlayerResponse_SampleButton);
 			newResponse_Button.transform.SetParent (Dialogue_ResponsePanel.transform);
-			newResponse_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i]];
-			int param = gameData.npcs [currentNPC].dialogueReponseIDs.ElementAt (currentNPCDialogueIndex).Value [i];
+			newResponse_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value [i]];
+			int param = currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value [i];
 			newResponse_Button.GetComponent<Button>().onClick.AddListener(delegate { dialogueAction(param); });
 
 			dialogueGameObjects.Add(newResponse_Button);
@@ -342,7 +352,7 @@ public class SimpleRunShopScene : MonoBehaviour
 			}
 			case 1:
 			{
-				nextCustomer();
+				createNextNPC();
 				break;
 			}
 			case 2:

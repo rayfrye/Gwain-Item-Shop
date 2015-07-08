@@ -133,12 +133,16 @@ public class GameData : MonoBehaviour
 			
 			newNPC.id = int.Parse (npcDataFromFile[row,0]);
 			newNPC.name = npcDataFromFile[row,1];
-			newNPC.gold = int.Parse (npcDataFromFile[row,2]);
+			newNPC.gold = Random.Range (0,50);//int.Parse (npcDataFromFile[row,2]);
 
 			for(int i = 0; i < 7; i++)
 			{
 				newNPC.itemCount.Add (i,1);
 			}
+
+			int itemToRemove = newNPC.itemCount.ElementAt (Random.Range (0,newNPC.itemCount.Count)).Key;
+
+			newNPC.itemCount.Remove (itemToRemove);
 
 			for(int i = 0; i < npcDialogueDataFromFile.GetLength (0); i++)
 			{

@@ -8,6 +8,9 @@ public class NPC : ScriptableObject
 	public string name;
 	public int gold;
 
+	public int itemTypeNeed;
+	public int questDifficultyLevel;
+
 	public Dictionary<int,int> itemCount = new Dictionary<int, int>();
 	public List<int> dialogueIDs = new List<int>();
 	public Dictionary<int,List<int>> dialogueReponseIDs = new Dictionary<int, List<int>>();

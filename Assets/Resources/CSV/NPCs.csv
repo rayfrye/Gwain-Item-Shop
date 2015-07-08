@@ -1,4 +1,7 @@
-id,name,gold
-0,John,100
-1,Darlene,100
-2,Betty,300
+id,name
+0,John
+1,Darlene
+2,Betty
+3,Ray
+4,Artie
+5,Leigh
