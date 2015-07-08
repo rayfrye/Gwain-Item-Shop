@@ -44,6 +44,10 @@ public class SimpleRunShopScene : MonoBehaviour
 	NPC currentNPC;
 	int currentNPCIDDialogueIndex;
 
+	List<string> currentNPCDialogue = new List<string> ();
+	List<string> currentNPCResponses = new List<string> ();
+	Dictionary<int,List<int>> currentNPCActions = new Dictionary<int,List<int>> ();
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -220,38 +224,22 @@ public class SimpleRunShopScene : MonoBehaviour
 		{
 			currentNPC.itemCount.Add (itemID, 1);
 		}
-
-		//debugNPCGoldAndInv ();
 	}
 
 	void trySellingToNPC(int itemID)
 	{
 		bool npcNeedsItem = true;
 
-//		Dictionary<int, int> npcItemCount = currentNPC.itemCount;
-//
-//		//loop through npcs items to see if they have equivelant item already
-//		for (int i = 0; i < npcItemCount.Count; i++) 
-//		{
-//			npcNeedsItem = testItem (itemID,npcItemCount.ElementAt (i).Key);
-//
-//			if(!npcNeedsItem)
-//			{
-//				break;
-//			}
-//		}
-
 		npcNeedsItem = testItem (itemID,currentNPC.itemTypeNeed);
 
-		if (!npcNeedsItem) 
+		if (!npcNeedsItem)
 		{
-			//createNextNPC ();
-		} 
+			writeDialogueToScreen (1);
+		}
 		else 
 		{
 			removeStoreInvItem(itemID);
 		}
-
 	}
 
 	bool testItem(int item1, int item2)
@@ -280,6 +268,8 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	void createNextNPC()
 	{
+		clearNPCDialogue ();
+
 		currentNPCID++;
 		currentNPC = ScriptableObject.CreateInstance <NPC> ();
 
@@ -296,28 +286,49 @@ public class SimpleRunShopScene : MonoBehaviour
 		responseIDs.Add (6);
 		currentNPC.dialogueReponseIDs.Add (4, responseIDs);
 
-		writeDialogueToScreen ();
+		currentNPCDialogue.Add (currentNPC.name + ": " + "Hello, I'm looking for " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
+		currentNPCDialogue.Add (currentNPC.name + ": " + "That's not what I'm looking for. I want " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
+
+		currentNPCResponses.Add ("I don't have any of those.");
+		List<int> responses1 = new List<int> ();
+		responses1.Add (1);
+		currentNPCActions.Add (0,responses1);
+
+		currentNPCResponses.Add ("Oh I've got one of those.");
+		List<int> responses2 = new List<int> ();
+		responses2.Add (2);
+		currentNPCActions.Add (1,responses2);
+
+		writeDialogueToScreen (0);
 	}
 
-	void writeDialogueToScreen()
+	void clearNPCDialogue()
+	{
+		currentNPCDialogue.Clear ();
+		currentNPCResponses.Clear ();
+		currentNPCActions.Clear ();
+	}
+
+	void writeDialogueToScreen(int dialogueTextID)
 	{
 		//debugNPCGoldAndInv ();
 
 		destroyGameObjects (dialogueGameObjects);
 
-		//NPCDialogue_Text.GetComponent<Text>().text = currentNPC.name + ": " + gameData.dialogueText[currentNPC.dialogueIDs [currentNPCIDDialogueIndex]];
-		NPCDialogue_Text.GetComponent<Text>().text = currentNPC.name + ": I'm looking for a " + gameData.itemTypes[currentNPC.itemTypeNeed].name;
+		NPCDialogue_Text.GetComponent<Text>().text = currentNPCDialogue[dialogueTextID];
 
 		PlayerResponse_SampleButton.SetActive (true);
 
-		for (int i = 0; i < currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value.Count; i++) 
+		for (int i = 0; i < currentNPCResponses.Count; i++)
 		{
 			GameObject newResponse_Button = (GameObject)Instantiate (PlayerResponse_SampleButton);
 			newResponse_Button.transform.SetParent (Dialogue_ResponsePanel.transform);
-			newResponse_Button.transform.GetComponentInChildren<Text> ().text = gameData.dialogueText [currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value [i]];
-			int param = currentNPC.dialogueReponseIDs.ElementAt (currentNPCIDDialogueIndex).Value [i];
-			newResponse_Button.GetComponent<Button>().onClick.AddListener(delegate { dialogueAction(param); });
 
+			newResponse_Button.transform.GetComponentInChildren<Text> ().text = currentNPCResponses[i];
+
+			int param = i;
+			newResponse_Button.GetComponent<Button>().onClick.AddListener(delegate { dialogueAction(param); });
+			
 			dialogueGameObjects.Add(newResponse_Button);
 		}
 
@@ -339,10 +350,11 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	void dialogueAction(int dialogueTextID)
 	{
-		List<int> dialogueIDs = gameData.dialogueActions.ElementAt (dialogueTextID).Value;
-		
+		List<int> dialogueIDs = currentNPCActions.ElementAt (dialogueTextID).Value;
+
 		foreach (int dialogueID in dialogueIDs) 
 		{
+
 			switch(dialogueID)
 			{
 			case 0:
