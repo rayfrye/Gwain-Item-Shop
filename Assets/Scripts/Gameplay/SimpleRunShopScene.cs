@@ -288,6 +288,8 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		currentNPCDialogue.Add (currentNPC.name + ": " + "Hello, I'm looking for " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
 		currentNPCDialogue.Add (currentNPC.name + ": " + "That's not what I'm looking for. I want " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
+		currentNPCDialogue.Add (currentNPC.name + ": " + "Thanks!");
+		currentNPCDialogue.Add (currentNPC.name + ": " + "Listen, if you don't have any " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ", I'll go somewhere else");
 
 		currentNPCResponses.Add ("I don't have any of those.");
 		List<int> responses1 = new List<int> ();
