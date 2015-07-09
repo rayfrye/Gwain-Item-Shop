@@ -23,6 +23,7 @@ public class GameData : MonoBehaviour
 
 		#region NPCData
 			public List<NPC> npcs = new List<NPC> ();
+			public List<Quest> quests = new List<Quest> ();
 		#endregion NPCData
 
 	#endregion GameData
@@ -70,6 +71,7 @@ public class GameData : MonoBehaviour
 			setupSimpleRunShopInventoryScene();
 			loadDialogueData();
 			loadNPCData();
+			loadQuests();
 			break;
 		}
 		default:
@@ -166,6 +168,22 @@ public class GameData : MonoBehaviour
 			}
 			
 			npcs.Add(newNPC);
+		}
+	}
+
+	void loadQuests()
+	{
+		for (int i = 0; i < 3; i++) 
+		{
+			Quest newQuest = ScriptableObject.CreateInstance<Quest>();
+
+			newQuest.id = i;
+			newQuest.name = "Quest Level " + i;
+
+			newQuest.difficultyLevel = Random.Range (0,5);
+
+			quests.Add (newQuest);
+
 		}
 	}
 

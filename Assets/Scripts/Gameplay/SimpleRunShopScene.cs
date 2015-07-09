@@ -15,6 +15,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	public GameObject Items;
 	public GameData gameData;
 	public Text remainingGoldText;
+	public Text NPCGoldText;
 	
 	List<GameObject> storeInvGameObjects = new List<GameObject> ();
 	List<GameObject> dialogueGameObjects = new List<GameObject>();
@@ -73,6 +74,7 @@ public class SimpleRunShopScene : MonoBehaviour
 		gameData = GameObject.Find ("GameData").GetComponent<GameData> ();
 
 		remainingGoldText = GameObject.Find ("RemainingGold").GetComponent<Text> ();
+		NPCGoldText = GameObject.Find ("NPCGold").GetComponent<Text> ();
 		
 		ListStoreInv_Values = GameObject.Find ("ListStoreInv_Values");
 		ListStoreInv_SampleValue = GameObject.Find ("ListStoreInv_SampleValue");
@@ -118,14 +120,14 @@ public class SimpleRunShopScene : MonoBehaviour
 				ListStoreInv_Buttons.GetComponent<GridLayoutGroup>().cellSize.y * gameData.player.itemCount.Count
 				,ListStoreInv_ScrollView.GetComponent<RectTransform>().sizeDelta.y
 				)
-				);
+			);
 		
 		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListStoreInv_ScrollContent_Vector2;
 		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position = new Vector3 (
 			ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.x
 			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.y - ListStoreInv_ScrollContent_Vector2.y
 			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.z
-			);
+		);
 		ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 		
 		for (int k = 0; k < gameData.player.itemCount.Count; k++) 
@@ -172,7 +174,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	
 	void setupGold()
 	{
-		remainingGoldText.text = "Remaining Gold: " + gameData.player.gold;
+		remainingGoldText.text = gameData.player.gold+"g";
 	}
 	
 	void destroyGameObjects(List<GameObject> gos)
@@ -296,9 +298,11 @@ public class SimpleRunShopScene : MonoBehaviour
 		currentNPC.id = currentNPCID;
 		currentNPC.name = "Customer " + currentNPCID;
 		currentNPC.gold = Random.Range (10, 100);
+		NPCGoldText.text = currentNPC.gold+"g";
 
 		currentNPC.itemTypeNeed = Random.Range (0, gameData.itemTypes.Count);
 		currentNPC.questDifficultyLevel = Random.Range (0, 10);
+		currentNPC.level = 0;
 
 		currentNPC.dialogueIDs.Add (4);
 		List<int> responseIDs = new List<int> ();
@@ -306,19 +310,19 @@ public class SimpleRunShopScene : MonoBehaviour
 		responseIDs.Add (6);
 		currentNPC.dialogueReponseIDs.Add (4, responseIDs);
 
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Hello, I'm looking for " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "That's not what I'm looking for. I want " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Thanks!");
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Listen, if you don't have any " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ", I'll go somewhere else");
+		currentNPC.currentQuest = gameData.quests[Random.Range (0, gameData.quests.Count)];
 
-		currentNPCResponses.Add ("I don't have any of those.");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Hello, I'm going on a " + currentNPC.currentQuest.difficultyDesc() + " quest.");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "");
+
+		currentNPCResponses.Add ("I think I can help you.");
 		List<int> responses1 = new List<int> ();
-		responses1.Add (1);
+		responses1.Add (2);
 		currentNPCActions.Add (0,responses1);
 
-		currentNPCResponses.Add ("Oh I've got one of those.");
+		currentNPCResponses.Add ("Eh, I'm sure you'll be fine.");
 		List<int> responses2 = new List<int> ();
-		responses2.Add (2);
+		responses2.Add (1);
 		currentNPCActions.Add (1,responses2);
 
 		writeDialogueToScreen (0);
