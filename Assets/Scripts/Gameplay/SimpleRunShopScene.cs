@@ -16,6 +16,10 @@ public class SimpleRunShopScene : MonoBehaviour
 	public GameData gameData;
 	public Text remainingGoldText;
 	public Text NPCGoldText;
+	public Slider markupSlider;
+	public Text markupValue;
+	public int previousMarkupValue;
+	public Text previousQuestOutcome;
 	
 	List<GameObject> storeInvGameObjects = new List<GameObject> ();
 	List<GameObject> dialogueGameObjects = new List<GameObject>();
@@ -64,6 +68,17 @@ public class SimpleRunShopScene : MonoBehaviour
 		createNextNPC ();
 		setupGold ();
 	}
+
+	void LateUpdate()
+	{
+		markupValue.text = "Currently selling items at " + markupSlider.value + "% of market value.";
+
+		if (previousMarkupValue != markupSlider.value) 
+		{
+			setupStoreInv();
+			previousMarkupValue = (int) markupSlider.value;
+		}
+	}
 	
 	void getComponents()
 	{
@@ -75,6 +90,12 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		remainingGoldText = GameObject.Find ("RemainingGold").GetComponent<Text> ();
 		NPCGoldText = GameObject.Find ("NPCGold").GetComponent<Text> ();
+		markupSlider = GameObject.Find ("MarkupSlider").GetComponent<Slider> ();
+		markupValue = GameObject.Find ("MarkupValue").GetComponent<Text> ();
+		markupSlider.value = 120;
+		previousMarkupValue = 120;
+
+		previousQuestOutcome = GameObject.Find ("PreviousQuestOutcome").transform.GetComponentInChildren<Text> ();
 		
 		ListStoreInv_Values = GameObject.Find ("ListStoreInv_Values");
 		ListStoreInv_SampleValue = GameObject.Find ("ListStoreInv_SampleValue");
@@ -112,6 +133,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		ListStoreInv_SampleValue.SetActive(true);
 		ListStoreInv_SampleButton.SetActive(true);
+		destroyGameObjects(storeInvGameObjects);
 
 		Vector2 ListStoreInv_ScrollContent_Vector2 = 
 			new Vector2 (
@@ -153,7 +175,9 @@ public class SimpleRunShopScene : MonoBehaviour
 			
 			GameObject newValue_Cost = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Cost.transform.SetParent (ListStoreInv_Values .transform);
-			newValue_Cost.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].cost.ToString (); 
+			float costF = gameData.allItems[i].cost * (markupSlider.value / 100);
+			int cost = (int) costF;
+			newValue_Cost.transform.GetComponentInChildren<Text>().text = cost+"g"; 
 			
 			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
 			newButton.transform.SetParent (ListStoreInv_Buttons.transform);
@@ -234,9 +258,15 @@ public class SimpleRunShopScene : MonoBehaviour
 		//createNextNPC ();
 	}
 
+	int adjustedCost(int cost)
+	{
+		float costF = cost * (markupSlider.value / 100);
+		 return (int) costF;
+	}
+
 	void completeNPCTransaction(int cost, int itemID)
 	{
-		currentNPC.gold -= cost;
+		currentNPC.gold -= adjustedCost (cost);
 
 		if (currentNPC.itemCount.ContainsKey (itemID)) 
 		{
@@ -255,10 +285,9 @@ public class SimpleRunShopScene : MonoBehaviour
 		bool npcNeedsItem = true;
 
 		npcNeedsItem = testItem (itemID,currentNPC.itemTypeNeed);
-		print (currentNPC.gold);
 		if (npcNeedsItem)
 		{
-			if(currentNPC.gold > gameData.allItems[itemID].cost)
+			if(currentNPC.gold > adjustedCost(gameData.allItems[itemID].cost))
 			{
 				removeStoreInvItem(itemID);
 			}
@@ -349,7 +378,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		bool result = true;
 
-		int diceRoll = Random.Range (0, 100) + questBonus;
+		int diceRoll = Random.Range (0, 20);
 
 		int itemBonus = 0;
 
@@ -358,18 +387,28 @@ public class SimpleRunShopScene : MonoBehaviour
 			itemBonus+= gameData.allItems[currentNPC.itemCount.ElementAt(i).Key].questBonus;
 		}
 
+		int adjustedRoll = diceRoll + itemBonus + questBonus;
 
-		if (diceRoll+itemBonus < difficultyPct) 
+		if (adjustedRoll < difficultyPct) 
 		{
 			result = false;
 		}
 
-		Debug.Log ("Quest Result: " +
-					"\n\tDice Roll: " + diceRoll 
-		           + "\n\tItemBonus: " + itemBonus
-		           + "\n\tDifficulty Pct: " + difficultyPct 
-		           + "\n\tResult: " + result
-		           );
+		string printOutcome = "Success!";
+
+		if (!result) {
+			printOutcome = "Failure";
+		}
+
+		string s = "Quest Result: "
+			+ "\n\tDice Roll: " + diceRoll 
+			+ "\n\tItem Bonus: " + itemBonus
+			+ "\n\tNPC Quest Bonus: " + questBonus
+			+ "\n\tAdjusted Roll: " + adjustedRoll
+			+ "\n\tDifficulty Pct: " + difficultyPct 
+			+ "\n\tResult: " + printOutcome;
+
+		previousQuestOutcome.text = s;
 
 		return result;
 	}
