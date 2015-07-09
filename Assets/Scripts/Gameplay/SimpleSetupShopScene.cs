@@ -32,13 +32,17 @@ public class SimpleSetupShopScene : MonoBehaviour
 			public GameObject ListAllItems_ScrollBar;
 		#endregion ListAllItems
 
-		#region ListAllItems
+		#region ListStoreInv
 			public GameObject ListStoreInv_Values;
 			public GameObject ListStoreInv_SampleValue;
 					
 			public GameObject ListStoreInv_Buttons;
 			public GameObject ListStoreInv_SampleButton;
-		#endregion ListAllItems
+
+			public GameObject ListStoreInv_ScrollContent;
+			public GameObject ListStoreInv_ScrollView;
+			public GameObject ListStoreInv_ScrollBar;
+		#endregion ListStoreInv
 
 		public GameObject StartGame_Button;
 	#endregion uiobjects
@@ -76,8 +80,13 @@ public class SimpleSetupShopScene : MonoBehaviour
 		ListStoreInv_SampleButton = GameObject.Find ("ListStoreInv_SampleButton");
 
 		ListAllItems_ScrollContent = GameObject.Find ("ListAllItems_ScrollContent");
+		ListStoreInv_ScrollContent = GameObject.Find ("ListStoreInv_ScrollContent");
+
 		ListAllItems_ScrollView = GameObject.Find ("ListAllItems_ScrollView");
+		ListStoreInv_ScrollView = GameObject.Find ("ListStoreInv_ScrollView");
+
 		ListAllItems_ScrollBar = GameObject.Find ("ListAllItems_ScrollBar");
+		ListStoreInv_ScrollBar = GameObject.Find ("ListStoreInv_ScrollBar");
 
 		StartGame_Button = GameObject.Find ("StartGame_Button");
 		StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
@@ -88,7 +97,7 @@ public class SimpleSetupShopScene : MonoBehaviour
 	{
 		ListAllItems_SampleValue.SetActive(true);
 		ListAllItems_SampleButton.SetActive(true);
-		Vector2 ListALlItems_ScrollContent_Vector2 = 
+		Vector2 ListAllItems_ScrollContent_Vector2 = 
 			new Vector2 (
 				ListAllItems_ScrollContent.GetComponent<RectTransform> ().sizeDelta.x
 				, Mathf.Max (
@@ -97,7 +106,7 @@ public class SimpleSetupShopScene : MonoBehaviour
 				)
 			);
 
-		ListAllItems_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListALlItems_ScrollContent_Vector2;
+		ListAllItems_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListAllItems_ScrollContent_Vector2;
 		ListAllItems_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 
 		for (int i = 0; i < gameData.allItems.Count; i++) 
@@ -132,6 +141,23 @@ public class SimpleSetupShopScene : MonoBehaviour
 	{
 		ListStoreInv_SampleValue.SetActive(true);
 		ListStoreInv_SampleButton.SetActive(true);
+
+		Vector2 ListStoreInv_ScrollContent_Vector2 = 
+			new Vector2 (
+				ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta.x
+				, Mathf.Max (
+				ListStoreInv_Buttons.GetComponent<GridLayoutGroup>().cellSize.y * gameData.player.itemCount.Count
+				,ListStoreInv_ScrollView.GetComponent<RectTransform>().sizeDelta.y
+				)
+			);
+		
+		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListStoreInv_ScrollContent_Vector2;
+		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position = new Vector3 (
+				ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.x
+				, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.y - ListStoreInv_ScrollContent_Vector2.y
+				, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.z
+		);
+		ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 
 		for (int k = 0; k < gameData.player.itemCount.Count; k++) 
 		{

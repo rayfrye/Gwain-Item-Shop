@@ -22,22 +22,24 @@ public class SimpleRunShopScene : MonoBehaviour
 	
 	#region uiobjects
 	
-	#region ListAllItems
+	#region ListStoreInv
 	public GameObject ListStoreInv_Values;
 	public GameObject ListStoreInv_SampleValue;
 	
 	public GameObject ListStoreInv_Buttons;
 	public GameObject ListStoreInv_SampleButton;
-	#endregion ListAllItems
-
+	
+	public GameObject ListStoreInv_ScrollContent;
+	public GameObject ListStoreInv_ScrollView;
+	public GameObject ListStoreInv_ScrollBar;
+	#endregion ListStoreInv
+	
 	#region dialogueGameObjects
 	public GameObject NPCDialogue_Text;
 	public GameObject Dialogue_ResponsePanel;
 	public GameObject PlayerResponse_SampleButton;
 	#endregion dialogueGameObjects
-	
-	public GameObject StartGame_Button;
-	public GameObject NextCustomer_Button;
+
 	#endregion uiobjects
 
 	int currentNPCID;
@@ -78,11 +80,11 @@ public class SimpleRunShopScene : MonoBehaviour
 		ListStoreInv_Buttons = GameObject.Find ("ListStoreInv_Buttons");
 		ListStoreInv_SampleButton = GameObject.Find ("ListStoreInv_SampleButton");
 		
-		StartGame_Button = GameObject.Find ("StartGame_Button");
-		//StartGame_Button.GetComponent<Button>().onClick.AddListener(delegate { startGame(); });
-
-		NextCustomer_Button = GameObject.Find ("NextCustomer_Button");
-		NextCustomer_Button.GetComponent<Button>().onClick.AddListener(delegate { createNextNPC(); });
+		ListStoreInv_ScrollContent = GameObject.Find ("ListStoreInv_ScrollContent");
+		
+		ListStoreInv_ScrollView = GameObject.Find ("ListStoreInv_ScrollView");
+		
+		ListStoreInv_ScrollBar = GameObject.Find ("ListStoreInv_ScrollBar");
 
 		NPCDialogue_Text = GameObject.Find ("NPCDialogue_Text");
 		Dialogue_ResponsePanel = GameObject.Find ("Dialogue_ResponsePanel");
@@ -108,6 +110,23 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		ListStoreInv_SampleValue.SetActive(true);
 		ListStoreInv_SampleButton.SetActive(true);
+
+		Vector2 ListStoreInv_ScrollContent_Vector2 = 
+			new Vector2 (
+				ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta.x
+				, Mathf.Max (
+				ListStoreInv_Buttons.GetComponent<GridLayoutGroup>().cellSize.y * gameData.player.itemCount.Count
+				,ListStoreInv_ScrollView.GetComponent<RectTransform>().sizeDelta.y
+				)
+				);
+		
+		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListStoreInv_ScrollContent_Vector2;
+		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position = new Vector3 (
+			ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.x
+			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.y - ListStoreInv_ScrollContent_Vector2.y
+			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.z
+			);
+		ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 		
 		for (int k = 0; k < gameData.player.itemCount.Count; k++) 
 		{
@@ -128,6 +147,7 @@ public class SimpleRunShopScene : MonoBehaviour
 			GameObject newValue_Desc = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Desc.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Desc.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].desc;
+			newValue_Desc.transform.GetComponentInChildren<Text>().fontSize = 11;
 			
 			GameObject newValue_Cost = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Cost.transform.SetParent (ListStoreInv_Values .transform);
@@ -286,10 +306,10 @@ public class SimpleRunShopScene : MonoBehaviour
 		responseIDs.Add (6);
 		currentNPC.dialogueReponseIDs.Add (4, responseIDs);
 
-		currentNPCDialogue.Add (currentNPC.name + ": " + "Hello, I'm looking for " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
-		currentNPCDialogue.Add (currentNPC.name + ": " + "That's not what I'm looking for. I want " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
-		currentNPCDialogue.Add (currentNPC.name + ": " + "Thanks!");
-		currentNPCDialogue.Add (currentNPC.name + ": " + "Listen, if you don't have any " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ", I'll go somewhere else");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Hello, I'm looking for " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "That's not what I'm looking for. I want " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ".");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Thanks!");
+		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Listen, if you don't have any " + gameData.itemTypes[currentNPC.itemTypeNeed].name + ", I'll go somewhere else");
 
 		currentNPCResponses.Add ("I don't have any of those.");
 		List<int> responses1 = new List<int> ();
