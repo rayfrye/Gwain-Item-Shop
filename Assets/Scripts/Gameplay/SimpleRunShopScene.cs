@@ -57,12 +57,12 @@ public class SimpleRunShopScene : MonoBehaviour
 		getComponents ();
 		loadPlayerData ();
 		setupStoreInv ();
-		setupGold ();
 
 		currentNPCID = 0;
 		currentNPCIDDialogueIndex = 0;
 	
 		createNextNPC ();
+		setupGold ();
 	}
 	
 	void getComponents()
@@ -175,6 +175,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	void setupGold()
 	{
 		remainingGoldText.text = gameData.player.gold+"g";
+		NPCGoldText.text = currentNPC.gold + "g";
 	}
 	
 	void destroyGameObjects(List<GameObject> gos)
@@ -228,10 +229,9 @@ public class SimpleRunShopScene : MonoBehaviour
 		}
 
 		setupStoreInv ();
-		setupGold ();
 		completeNPCTransaction(gameData.allItems [itemID].cost, itemID);
 
-		createNextNPC ();
+		//createNextNPC ();
 	}
 
 	void completeNPCTransaction(int cost, int itemID)
@@ -246,6 +246,8 @@ public class SimpleRunShopScene : MonoBehaviour
 		{
 			currentNPC.itemCount.Add (itemID, 1);
 		}
+
+		setupGold ();
 	}
 
 	void trySellingToNPC(int itemID)
@@ -253,20 +255,29 @@ public class SimpleRunShopScene : MonoBehaviour
 		bool npcNeedsItem = true;
 
 		npcNeedsItem = testItem (itemID,currentNPC.itemTypeNeed);
-
-		if (!npcNeedsItem)
+		print (currentNPC.gold);
+		if (npcNeedsItem)
 		{
-			writeDialogueToScreen (1);
+			if(currentNPC.gold > gameData.allItems[itemID].cost)
+			{
+				removeStoreInvItem(itemID);
+			}
+			else
+			{
+				Debug.Log ("NPC out of gold.");
+			}
 		}
 		else 
 		{
-			removeStoreInvItem(itemID);
+			Debug.Log ("NPC already has item.");
+			//writeDialogueToScreen (1);
 		}
 	}
 
 	bool testItem(int item1, int item2)
 	{
-		if (gameData.allItems[item1].itemType != gameData.allItems[item2].itemType) 
+		//if (gameData.allItems[item1].itemType != gameData.allItems[item2].itemType) 
+		if(currentNPC.itemCount.ContainsKey (item1))
 		{
 			return false;
 		}
@@ -313,14 +324,13 @@ public class SimpleRunShopScene : MonoBehaviour
 		currentNPC.currentQuest = gameData.quests[Random.Range (0, gameData.quests.Count)];
 
 		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Hello, I'm going on a " + currentNPC.currentQuest.difficultyDesc() + " quest.");
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "");
 
 		currentNPCResponses.Add ("I think I can help you.");
 		List<int> responses1 = new List<int> ();
 		responses1.Add (2);
 		currentNPCActions.Add (0,responses1);
 
-		currentNPCResponses.Add ("Eh, I'm sure you'll be fine.");
+		currentNPCResponses.Add ("Alright, I think you're good!");
 		List<int> responses2 = new List<int> ();
 		responses2.Add (1);
 		currentNPCActions.Add (1,responses2);
@@ -333,6 +343,35 @@ public class SimpleRunShopScene : MonoBehaviour
 		currentNPCDialogue.Clear ();
 		currentNPCResponses.Clear ();
 		currentNPCActions.Clear ();
+	}
+
+	bool questResult(int questBonus, int difficultyPct)
+	{
+		bool result = true;
+
+		int diceRoll = Random.Range (0, 100) + questBonus;
+
+		int itemBonus = 0;
+
+		for (int i = 0; i < currentNPC.itemCount.Count; i++) 
+		{
+			itemBonus+= gameData.allItems[currentNPC.itemCount.ElementAt(i).Key].questBonus;
+		}
+
+
+		if (diceRoll+itemBonus < difficultyPct) 
+		{
+			result = false;
+		}
+
+		Debug.Log ("Quest Result: " +
+					"\n\tDice Roll: " + diceRoll 
+		           + "\n\tItemBonus: " + itemBonus
+		           + "\n\tDifficulty Pct: " + difficultyPct 
+		           + "\n\tResult: " + result
+		           );
+
+		return result;
 	}
 
 	void writeDialogueToScreen(int dialogueTextID)
@@ -390,12 +429,12 @@ public class SimpleRunShopScene : MonoBehaviour
 			}
 			case 1:
 			{
+				questResult(currentNPC.questBonus,currentNPC.currentQuest.difficultyPct());
 				createNextNPC();
 				break;
 			}
 			case 2:
 			{
-				print (2);
 				break;
 			}
 			default:

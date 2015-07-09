@@ -109,6 +109,7 @@ public class GameData : MonoBehaviour
 			newItem.desc = allItemsFromFile[row,2];
 			newItem.cost = int.Parse (allItemsFromFile[row,3]);
 			newItem.itemType = itemTypes[int.Parse (allItemsFromFile[row,4])];
+			newItem.questBonus = 5;
 
 			allItems.Add(newItem.id,newItem);
 		}

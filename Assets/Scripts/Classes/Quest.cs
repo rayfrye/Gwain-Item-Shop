@@ -39,7 +39,44 @@ public class Quest: ScriptableObject
 		}
 		default:
 		{
-			return "???";
+			return "ehhhhh";
+			break;
+		}
+		}
+	}
+
+	public int difficultyPct()
+	{
+		switch (difficultyLevel) 
+		{
+		case 0:
+		{
+			return 10;
+			break;
+		}
+		case 1:
+		{
+			return 30;
+			break;
+		}
+		case 2:
+		{
+			return 50;
+			break;
+		}
+		case 3:
+		{
+			return 70;
+			break;
+		}
+		case 4:
+		{
+			return 90;
+			break;
+		}
+		default:
+		{
+			return 1;
 			break;
 		}
 		}

@@ -12,4 +12,6 @@ public class Item : ScriptableObject
 
 	public int cost;
 
+	public int questBonus;
+
 }

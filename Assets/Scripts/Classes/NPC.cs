@@ -18,6 +18,6 @@ public class NPC : ScriptableObject
 	public Dictionary<int,List<int>> dialogueReponseIDs = new Dictionary<int, List<int>>();
 
 	public Quest currentQuest;
-	public int questCompletionPct;
+	public int questBonus;
 	public int chanceOfCompletingQuest;
 }
