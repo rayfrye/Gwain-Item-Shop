@@ -1,13 +1,11 @@
 fileFormatVersion: 2
-guid: df4814e372c6ce04991a69febba7d0d8
-timeCreated: 1429457476
+guid: 8d8e3bc6c1aba48e4b7bf33f3c8d1f4f
+timeCreated: 1436407085
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: tree_0
-    21300002: tree_1
-    21300004: tree_2
-    21300006: tree_3
+    21300000: shop_objects_0
+    21300002: shop_objects_1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -47,49 +45,29 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 20
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: tree_0
+    - name: shop_objects_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 20
-        width: 20
-        height: 20
+        y: 190
+        width: 9
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: tree_1
+    - name: shop_objects_1
       rect:
         serializedVersion: 2
-        x: 20
-        y: 20
-        width: 20
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: tree_2
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 20
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: tree_3
-      rect:
-        serializedVersion: 2
-        x: 20
-        y: 0
-        width: 20
-        height: 20
+        x: 11
+        y: 189
+        width: 25
+        height: 11
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
