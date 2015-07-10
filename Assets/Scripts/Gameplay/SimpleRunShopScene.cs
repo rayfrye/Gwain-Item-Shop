@@ -53,6 +53,7 @@ public class SimpleRunShopScene : MonoBehaviour
 	bool customerWalking;
 	#endregion sprites
 
+
 	#endregion uiobjects
 
 	int currentNPCID;
@@ -82,18 +83,13 @@ public class SimpleRunShopScene : MonoBehaviour
 	{
 		markupValue.text = "Currently selling items at " + markupSlider.value + "% of market value.";
 
-		if (previousMarkupValue != markupSlider.value) 
-		{
-			setupStoreInv();
-			previousMarkupValue = (int) markupSlider.value;
+		if (previousMarkupValue != markupSlider.value) {
+			setupStoreInv ();
+			previousMarkupValue = (int)markupSlider.value;
 		}
 
-		if (customerWalking) 
-		{
-			print ("walking");
-
-			if(walkFromDoorToCounter())
-			{
+		if (customerWalking) {
+			if (walkFromDoorToCounter ()) {
 				customerWalking = false;
 			}
 		}
@@ -397,14 +393,16 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	bool walkFromDoorToCounter()
 	{
-		CustomerSprite.transform.position = Vector3.MoveTowards (CustomerSprite.transform.position, Waypoint_Counter.transform.position, 20*Time.deltaTime);
+		CustomerSprite.transform.position = Vector3.MoveTowards (CustomerSprite.transform.position, Waypoint_Counter.transform.position, 20 * Time.deltaTime);
 
 		if ((Waypoint_Counter.transform.position - CustomerSprite.transform.position).sqrMagnitude < 1) 
 		{
+			CustomerSprite.GetComponent<Animator>().SetFloat("Speed",0);
 			return true;
 		} 
 		else 
 		{
+			CustomerSprite.GetComponent<Animator>().SetFloat("Speed",1);
 			return false;
 		}
 	}
