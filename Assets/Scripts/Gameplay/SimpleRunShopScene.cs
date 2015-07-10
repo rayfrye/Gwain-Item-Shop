@@ -45,6 +45,14 @@ public class SimpleRunShopScene : MonoBehaviour
 	public GameObject PlayerResponse_SampleButton;
 	#endregion dialogueGameObjects
 
+	#region sprites
+	GameObject Waypoint_Door;
+	GameObject Waypoint_Counter;
+	GameObject CustomerSprite;
+	GameObject PlayerSprite;
+	bool customerWalking;
+	#endregion sprites
+
 	#endregion uiobjects
 
 	int currentNPCID;
@@ -61,6 +69,7 @@ public class SimpleRunShopScene : MonoBehaviour
 		getComponents ();
 		loadPlayerData ();
 		setupStoreInv ();
+		ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 
 		currentNPCID = 0;
 		currentNPCIDDialogueIndex = 0;
@@ -78,8 +87,18 @@ public class SimpleRunShopScene : MonoBehaviour
 			setupStoreInv();
 			previousMarkupValue = (int) markupSlider.value;
 		}
+
+		if (customerWalking) 
+		{
+			print ("walking");
+
+			if(walkFromDoorToCounter())
+			{
+				customerWalking = false;
+			}
+		}
 	}
-	
+
 	void getComponents()
 	{
 		GameObject functions = GameObject.Find ("Functions");
@@ -112,6 +131,10 @@ public class SimpleRunShopScene : MonoBehaviour
 		NPCDialogue_Text = GameObject.Find ("NPCDialogue_Text");
 		Dialogue_ResponsePanel = GameObject.Find ("Dialogue_ResponsePanel");
 		PlayerResponse_SampleButton = GameObject.Find ("PlayerResponse_SampleButton");
+
+		Waypoint_Door = GameObject.Find ("Waypoint_Door");
+		Waypoint_Counter = GameObject.Find ("Waypoint_Counter");
+		CustomerSprite = GameObject.Find ("Customer");
 	}
 
 	void loadPlayerData()
@@ -145,12 +168,12 @@ public class SimpleRunShopScene : MonoBehaviour
 			);
 		
 		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().sizeDelta = ListStoreInv_ScrollContent_Vector2;
-		ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position = new Vector3 (
+		/*ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position = new Vector3 (
 			ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.x
 			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.y - ListStoreInv_ScrollContent_Vector2.y
 			, ListStoreInv_ScrollContent.GetComponent<RectTransform> ().position.z
-		);
-		ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
+		);*/
+		//ListStoreInv_ScrollBar.GetComponent<Scrollbar> ().value = 1;
 		
 		for (int k = 0; k < gameData.player.itemCount.Count; k++) 
 		{
@@ -159,30 +182,36 @@ public class SimpleRunShopScene : MonoBehaviour
 			GameObject newValue_Count = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Count.transform.SetParent(ListStoreInv_Values.transform);
 			newValue_Count.GetComponent<Text>().text = gameData.player.itemCount.Values.ToList ()[k].ToString ();
-			
-			GameObject newValue_Name = (GameObject) Instantiate (ListStoreInv_SampleValue);
-			newValue_Name.transform.SetParent (ListStoreInv_Values.transform);
-			newValue_Name.GetComponent<Text>().text = gameData.allItems[i].name;
+			newValue_Count.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 			
 			GameObject newValue_Type = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Type.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Type.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].itemType.name;
+			newValue_Type.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+
+			GameObject newValue_Name = (GameObject) Instantiate (ListStoreInv_SampleValue);
+			newValue_Name.transform.SetParent (ListStoreInv_Values.transform);
+			newValue_Name.GetComponent<Text>().text = gameData.allItems[i].name;
+			newValue_Name.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 			
 			GameObject newValue_Desc = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Desc.transform.SetParent (ListStoreInv_Values.transform);
 			newValue_Desc.transform.GetComponentInChildren<Text>().text = gameData.allItems[i].desc;
 			newValue_Desc.transform.GetComponentInChildren<Text>().fontSize = 11;
+			newValue_Desc.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 			
 			GameObject newValue_Cost = (GameObject) Instantiate (ListStoreInv_SampleValue);
 			newValue_Cost.transform.SetParent (ListStoreInv_Values .transform);
 			float costF = gameData.allItems[i].cost * (markupSlider.value / 100);
 			int cost = (int) costF;
 			newValue_Cost.transform.GetComponentInChildren<Text>().text = cost+"g"; 
+			newValue_Cost.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 			
 			GameObject newButton = (GameObject) Instantiate(ListStoreInv_SampleButton);
 			newButton.transform.SetParent (ListStoreInv_Buttons.transform);
 			int param = gameData.allItems[i].id;
 			newButton.GetComponent<Button>().onClick.AddListener(delegate { trySellingToNPC(param); });
+			newButton.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 			
 			storeInvGameObjects.Add (newValue_Count);
 			storeInvGameObjects.Add (newValue_Name);
@@ -330,6 +359,8 @@ public class SimpleRunShopScene : MonoBehaviour
 
 	void createNextNPC()
 	{
+		CustomerSprite.transform.position = Waypoint_Door.transform.position;
+
 		clearNPCDialogue ();
 
 		currentNPCID++;
@@ -352,19 +383,30 @@ public class SimpleRunShopScene : MonoBehaviour
 
 		currentNPC.currentQuest = gameData.quests[Random.Range (0, gameData.quests.Count)];
 
-		currentNPCDialogue.Add (currentNPC.name + ":\n" + "Hello, I'm going on a " + currentNPC.currentQuest.difficultyDesc() + " quest.");
-
-		currentNPCResponses.Add ("I think I can help you.");
-		List<int> responses1 = new List<int> ();
-		responses1.Add (2);
-		currentNPCActions.Add (0,responses1);
+		currentNPCDialogue.Add ("Hello, I'm going on a " + currentNPC.currentQuest.difficultyDesc() + " quest.");
 
 		currentNPCResponses.Add ("Alright, I think you're good!");
 		List<int> responses2 = new List<int> ();
 		responses2.Add (1);
 		currentNPCActions.Add (1,responses2);
 
+		customerWalking = true;
+
 		writeDialogueToScreen (0);
+	}
+
+	bool walkFromDoorToCounter()
+	{
+		CustomerSprite.transform.position = Vector3.MoveTowards (CustomerSprite.transform.position, Waypoint_Counter.transform.position, 20*Time.deltaTime);
+
+		if ((Waypoint_Counter.transform.position - CustomerSprite.transform.position).sqrMagnitude < 1) 
+		{
+			return true;
+		} 
+		else 
+		{
+			return false;
+		}
 	}
 
 	void clearNPCDialogue()
@@ -427,6 +469,7 @@ public class SimpleRunShopScene : MonoBehaviour
 		{
 			GameObject newResponse_Button = (GameObject)Instantiate (PlayerResponse_SampleButton);
 			newResponse_Button.transform.SetParent (Dialogue_ResponsePanel.transform);
+			newResponse_Button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
 
 			newResponse_Button.transform.GetComponentInChildren<Text> ().text = currentNPCResponses[i];
 
